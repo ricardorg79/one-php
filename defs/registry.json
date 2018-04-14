@@ -1,0 +1,9 @@
+{
+	"name": "registry",
+	"image": "registry:2",
+	"port.http": 5000,
+	"internet": true,
+	"volumes": {
+		"/srv/registry": "/var/lib/registry"
+	}
+}

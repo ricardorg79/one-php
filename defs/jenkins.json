@@ -1,0 +1,8 @@
+{
+	"name": "jenkins",
+	"image": "jenkins/jenkins:lts",
+	"port.http": 8080,
+	"volumes": {
+		"/srv/jenkins":"/var/jenkins_home"
+	}
+}

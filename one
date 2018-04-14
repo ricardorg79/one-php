@@ -1,0 +1,28 @@
+#!/usr/bin/env php
+<?php
+include(__DIR__.'/globals.php');
+
+
+$config         = parse_ini_file(__DIR__.'/config.ini', true);
+$proxyPublic    = $config['proxy.public.ip'];
+$proxyPrivateIp = $config['proxy.private.ip'];
+$dockerHostIp   = $config['docker.host.ip'];
+
+$cycle = new Cycle(__DIR__, $proxyPublicIp, $proxyPrivateIp, $dockerHostIp);
+
+$cycle->checkCommand(@$argv[0], @$argv[1], @$argv[2]);
+
+/*
+
+$NAME = "nexus";
+$IMAGE = "sonatype/nexus3";
+$EXTRA_PARAMS = [
+		"-p", "$IP:8389:8081",
+		"-e", 'INSTALL4J_ADD_VM_PARAMS=-Xms256m -Xmx256m -XX:MaxDirectMemorySize=200m -Djava.util.prefs.userRoot=/srv'
+	];
+
+//startStopFunc($argv);
+*/
+
+
+

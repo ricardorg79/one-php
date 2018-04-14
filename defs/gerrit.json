@@ -1,0 +1,20 @@
+{
+	"name": "gerrit",
+	"image": "gerritcodereview/gerrit",
+	"port.http": 8080,
+	"port.map": {
+		"29418":"29418"
+	},
+	"volumes": {
+		"/srv/gerrit/gerrit/cache": "/var/gerrit/cache",
+		"/srv/gerrit/gerrit/db": "/var/gerrit/db",
+		"/srv/gerrit/gerrit/etc": "/var/gerrit/etc",
+		"/srv/gerrit/gerrit/git": "/var/gerrit/git",
+		"/srv/gerrit/gerrit/index": "/var/gerrit/index",
+		"/srv/gerrit/gerrit/hooks": "/var/gerrit/hooks ",
+		"/srv/gerrit/gerrit/lib": "/var/gerrit/lib",
+		"/srv/gerrit/gerrit/plugins": "/var/gerrit/plugins",
+		"/srv/gerrit/gerrit/logs": "/var/gerrit/logs",
+		"/srv/gerrit/gerrit/data": "/var/gerrit/data"
+	}
+}
