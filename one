@@ -4,15 +4,14 @@ include(__DIR__.'/globals.php');
 
 
 $config         = parse_ini_file(__DIR__.'/config.ini', true);
-$proxyPublic    = $config['proxy.public.ip'];
-$proxyPublic    = $config['proxy.public.ip'];
+$proxyPublicIp  = $config['proxy.public.ip'];
 $proxyPrivateIp = $config['proxy.private.ip'];
 $dockerHostIp   = $config['docker.host.ip'];
 $baseDomain     = $config['base.domain'];
 
 $cycle = new Cycle(__DIR__, $proxyPublicIp, $proxyPrivateIp, $dockerHostIp, $baseDomain);
 
-$cycle->checkCommand(@$argv[0], @$argv[1], @$argv[2]);
+$cycle->checkCommand($argv);
 
 /*
 

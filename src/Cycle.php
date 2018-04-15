@@ -16,39 +16,86 @@ class Cycle {
 		$this->proxyPrivateIp = $proxyPrivateIp;
 		$this->dockerHostIp = $dockerHostIp;
 		$this->baseDomain = $baseDomain;
-		$this->proxyService = new ProxyService();
+		$this->proxyService = new ProxyService($proxyPublicIp);
 	}
 
-	function checkCommand($prog, $target, $action) {
-		if (empty($action) && $target != 'list') {
-			$this->displayUsageAndExit($prog);
-		}
+	function checkCommand($args) {
+		$prog = $args[0];
+		$action = @$args[1];
 
 		switch ($action) {
 			case 'start':
-				echo "Starting\n";
-				$this->start_process($target);
-				break;
-
 			case 'stop':
-				echo "Stopping\n";
-				$this->stop_process($target);
-				break;
-
 			case 'restart':
-				echo "Stopping\n";
-				$this->stop_process($target);
-				echo "Starting\n";
-				$this->start_process($target);
+				$name = @$args[2];
+				if (empty($name)) {
+					$this->displayUsageAndExit($prog);
+					break;
+				}
+				switch ($action) {
+					case 'start':
+						echo "Starting\n";
+						$this->start_process($name);
+						break;
+					case 'stop':
+						echo "Stopping\n";
+						$this->stop_process($name);
+						break;
+					case 'restart':
+						echo "Stopping\n";
+						$this->stop_process($name);
+						echo "Starting\n";
+						$this->start_process($name);
+						break;
+				}
 				break;
 
-			default:
-				if ($target == 'list') {
-					$this->listDefinitions();
+			case 'proxy':
+				$subAction = $args[2];
+				switch ($subAction) {
+					case 'create':
+						if (empty($args[3]) || empty($args[4])) {
+							$this->displayUsageAndExit($prog);
+							break;
+						}
+						$this->createProxy($args[3], $this->dockerHostIp, $args[4]);
+						break;
+					case 'remove':
+						if (empty($args[3])) {
+							$this->displayUsageAndExit($prog);
+							break;
+						}
+						$this->removeProxy($args[1]);
+						break;
+					default:
+						$this->displayUsageAndExit($prog);
+						break;
 				}
-				else {
+				break;
+			case 'vhost':
+				$subAction = $args[2];
+				$domain = $args[3];
+				if (empty($domain)) {
 					$this->displayUsageAndExit($prog);
+					break;
 				}
+				switch ($subAction) {
+					case 'create':
+						$this->createVirtualHost($args[3]);
+						break;
+					case 'remove':
+						$this->removeVirtualHost($args[3]);
+						break;
+					default:
+						$this->displayUsageAndExit($prog);
+						break;
+				}
+				break;
+			case 'list':
+				$this->listDefinitions();
+				break;
+			default:
+				$this->displayUsageAndExit($prog);
 				break;
 		}
 	}
@@ -69,9 +116,13 @@ class Cycle {
 	private function displayUsageAndExit($prog) {
 		echo "Usage:\n";
 		echo "   $prog list\n";
-		echo "   $prog start\n";
-		echo "   $prog stop\n";
-		echo "   $prog restart\n";
+		echo "   $prog start <name>\n";
+		echo "   $prog stop <name>\n";
+		echo "   $prog restart <name>\n";
+		echo "   $prog proxy create <sub-domain> <local-port>\n";
+		echo "   $prog proxy remove <sub-domain>\n";
+		echo "   $prog vhost create <domain>\n";
+		echo "   $prog vhost remove <domain>\n";
 		echo "\n";
 		exit;
 	}
@@ -99,14 +150,9 @@ class Cycle {
 		}
 
 		// portMap
-		foreach ($def->getPortMap() as $hostPort => $contPort) {
-			$hostPort = (int)$hostPort;
-			$contPort = (int)$contPort;
-			if ($hostPort == 0 || $contPort == 0) {
-				throw new Exception("Invalid port.map format");
-			}
+		foreach ($def->getPorts() as $port) { // 53:53/udp
 			$params[] = "-p";
-			$params[] = "$hostIp:$hostPort:$contPort";
+			$params[] = "$hostIp:$port";
 		}
 
 		// volumes
@@ -123,6 +169,11 @@ class Cycle {
 			$params[] = escapeshellarg("$key=$val");
 		}
 
+		//--cap-add=NET_ADMIN"
+		foreach ($def->getCapabilities() as $cap) {
+			$params[] = escapeshellarg("--cap-add=$cap");
+		}
+
 		$extra_params = implode(' ', $params);
 
 		$name = $def->getName();
@@ -132,22 +183,38 @@ class Cycle {
 		passthru("$cmd");
 
 		if (!empty($httpPort > 0)) {
-			$this->createProxy($name, $httpPort);
+			$this->createProxy($name,$hostIp, $httpPort);
 		}
 	}
 
-	private function createProxy($name, $port) {
-		$domain = "$name.{$this->baseDomain}";
-		$this->proxyService->addVirtualHost($domain);
+	private function createProxy($subDomain, $host, $port) {
+		$domain = "$subDomain.{$this->baseDomain}";
 		$this->proxyService->requestSslCertificateForVirtualHost($domain);
+		$this->proxyService->addSslDockerProxy($host, $port, $domain, $this->proxyPrivateIp);
+	}
+
+	private function removeProxy($subDomain) {
+		$domain = "$subDomain.{$this->baseDomain}";
 		$this->proxyService->removeVirtualHost($domain, true);
-		$this->proxyService->addDockerProxy($this->hostIp, $port, $domain, $this->proxyPrivateIp);
+		$this->proxyService->removeDockerProxy($domain);
+	}
+
+	private function createVirtualHost($domain) {
+		$this->proxyService->addVirtualHost($domain, $this->proxyPublicIp);
+	}
+
+	private function removeVirtualHost($domain) {
+		$this->proxyService->removeVirtualHost($domain, true);
 	}
 
 	private function stop_process($name) {
-		passthru("docker kill $name");
-		passthru("docker rm $name");
-		$this->removeProxy($name);
+		//
+		exec("docker kill $name", $out);
+		exec("docker rm $name", $out);
+
+		//
+		$domain = "$name.{$this->baseDomain}";
+		$this->proxyService->removeDockerProxy($domain);
 	}
 
 	private function getDefDir() {

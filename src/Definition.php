@@ -8,12 +8,12 @@ interface Definition {
 
 	public function getHttp() : int;
 
-	public function getPortMap() : array;
+	public function getPorts() : array;
 
 	public function getVolumeMap() : array;
 
 	public function getEnvMap() : array;
 
-	public function isInternet() : bool;
+	public function getCapabilities() : array;
 }
 

@@ -3,7 +3,7 @@
 	"image": "gerritcodereview/gerrit",
 	"port.http": 8080,
 	"port.map": {
-		"29418":"29418"
+		"29418:29418"
 	},
 	"volumes": {
 		"/srv/gerrit/gerrit/cache": "/var/gerrit/cache",

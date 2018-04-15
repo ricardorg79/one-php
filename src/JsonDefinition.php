@@ -5,10 +5,10 @@ class JsonDefinition implements Definition {
 	private $name;
 	private $image;
 	private $http;
-	private $portMap;
+	private $ports;
 	private $volumes;
 	private $env;
-	private $internet;
+	private $caps;
 
 	public function __construct($defDir, $name) {
 		$defFile = $defDir.DIRECTORY_SEPARATOR.$name.'.json';
@@ -20,10 +20,10 @@ class JsonDefinition implements Definition {
 		$this->name     = trim(@$config['name']);
 		$this->image    = trim(@$config['image']);
 		$this->http     = (int) @$config['port.http'];
-		$this->portMap  = isset($config['port.map']) ? [] : $config['port.map'];
-		$this->volumes  = isset($config['volumes']) ? [] : $config['volumes'];
-		$this->env      = isset($config['env']) ? [] : $config['env'];
-		$this->internet = (bool)(isset($config['internet']) ? false : $config['internet']);
+		$this->ports    = array_key_exists('ports', $config) ? $config['ports'] : [];
+		$this->volumes  = array_key_exists('volumes', $config) ? $config['volumes'] : [];
+		$this->env      = array_key_exists('env', $config) ? $config['env'] : [];
+		$this->caps     = array_key_exists('caps', $config) ? $config['caps'] : [];
 		if (empty($this->name) || empty($this->image)) {
 			throw new Exception("name, image and port are required");
 		}
@@ -41,8 +41,8 @@ class JsonDefinition implements Definition {
 		return (int) $this->http;
 	}
 
-	public function getPortMap() : array {
-		return $this->portMap;
+	public function getPorts() : array {
+		return $this->ports;
 	}
 
 	public function getVolumeMap() : array {
@@ -53,8 +53,8 @@ class JsonDefinition implements Definition {
 		return $this->env;
 	}
 
-	public function isInternet() : bool {
-		return $this->internet;
+	public function getCapabilities() : array {
+		return $this->caps;
 	}
 }
 
