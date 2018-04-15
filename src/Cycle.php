@@ -3,16 +3,19 @@ declare(strict_types=1);
 class Cycle {
 
 	private $baseDir;
-	private $hostIp;
-	private $proxyIp;
+	
+	private $proxyPublicIp;
+	private $proxyPrivateIp;
+	private $dockerHostIp;
 
 	private $proxyService;
 
-	public function __construct($baseDir, k ) {
+	public function __construct($baseDir, $proxyPublicIp, $proxyPrivateIp, $dockerHostIp, $baseDomain) {
 		$this->baseDir = $baseDir;
-		$this->hostIp = $hostIp;
-		$this->proxyIp = $proxyIp;
-
+		$this->proxyPublicIp = $proxyPublicIp;
+		$this->proxyPrivateIp = $proxyPrivateIp;
+		$this->dockerHostIp = $dockerHostIp;
+		$this->baseDomain = $baseDomain;
 		$this->proxyService = new ProxyService();
 	}
 
@@ -79,7 +82,7 @@ class Cycle {
 		$defDir = $this->getDefDir();
 
 		//
-		$hostIp  = $this->hostIp;
+		$hostIp  = $this->dockerHostIp;
 
 		//
 		$def = new JsonDefinition($defDir, $name);
@@ -134,11 +137,11 @@ class Cycle {
 	}
 
 	private function createProxy($name, $port) {
-		$domain = ...;
+		$domain = "$name.{$this->baseDomain}";
 		$this->proxyService->addVirtualHost($domain);
 		$this->proxyService->requestSslCertificateForVirtualHost($domain);
 		$this->proxyService->removeVirtualHost($domain, true);
-		$this->proxyService->addDockerProxy($this->hostIp, $port, $domain, $this->in);
+		$this->proxyService->addDockerProxy($this->hostIp, $port, $domain, $this->proxyPrivateIp);
 	}
 
 	private function stop_process($name) {

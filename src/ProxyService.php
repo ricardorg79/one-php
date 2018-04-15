@@ -52,11 +52,11 @@ class ProxyService {
 		return "/etc/apache2/sites-available/$domain.conf";
 	}
 
-	private function addDockerProxy($host, $port, $domain, $exposeIp='*') {
+	private function addDockerProxy($host, $port, $domain, $listenIp='*') {
 		echo "Creating proxy\n";
 		$hostIp = $this->hostIp;
 $tpl = <<<TPL
-<VirtualHost $exposeIp:80>
+<VirtualHost $listenIp:80>
         ServerAdmin ricardo@rhamerica.com
 	ServerName $domain
 	AllowEncodedSlashes NoDecode
