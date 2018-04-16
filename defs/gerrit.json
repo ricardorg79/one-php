@@ -2,9 +2,9 @@
 	"name": "gerrit",
 	"image": "gerritcodereview/gerrit",
 	"port.http": 8080,
-	"port.map": {
+	"ports": [
 		"29418:29418"
-	},
+	],
 	"volumes": {
 		"/srv/gerrit/gerrit/cache": "/var/gerrit/cache",
 		"/srv/gerrit/gerrit/db": "/var/gerrit/db",

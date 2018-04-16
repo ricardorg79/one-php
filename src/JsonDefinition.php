@@ -16,6 +16,10 @@ class JsonDefinition implements Definition {
 			throw new Exception("$defFile not found");
 		}
 		$config  = json_decode(file_get_contents($defFile), true);
+		if ($config == null) {
+			throw new Exception("Unable to decode JSON from file $defFile");
+		}
+
 
 		$this->name     = trim(@$config['name']);
 		$this->image    = trim(@$config['image']);

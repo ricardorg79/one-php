@@ -1,0 +1,23 @@
+{
+	"//comment" :{
+		"name": "nexus",
+		"image": "sonatype/nexus3",
+		"port.http": 8081,
+		"env": {
+			"INSTALL4J_ADD_VM_PARAMS": "-Xms256m -Xmx256m -XX:MaxDirectMemorySize=200m -Djava.util.prefs.userRoot=/srv"
+		},
+		"volumes": {
+			"/srv/nexus.rha": "/srv"
+		}
+	},
+
+	"name": "maven",
+	"image": "registry.shttps.com/maven",
+	"port.http": 8080,
+	"env": {
+		"INSTALL4J_ADD_VM_PARAMS": "-Xms128m -Xmx128m -XX:MaxDirectMemorySize=100m -Djava.util.prefs.userRoot=/srv"
+	},
+	"volumes": {
+		"/srv/maven.shttps.com": "/srv"
+	}
+}
