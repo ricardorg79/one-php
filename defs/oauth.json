@@ -1,0 +1,7 @@
+{
+	"name": "oauth",
+	"image": "gerritcodereview/gerrit",
+	"repo": "/srv/gerrit/gerrit/git/oauth.git",
+	"port.http": 8080,
+	"volumes": { }
+}

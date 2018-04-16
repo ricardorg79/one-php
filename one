@@ -9,7 +9,8 @@ $proxyPrivateIp = $config['proxy.private.ip'];
 $dockerHostIp   = $config['docker.host.ip'];
 $baseDomain     = $config['base.domain'];
 
-$cycle = new Cycle(__DIR__, $proxyPublicIp, $proxyPrivateIp, $dockerHostIp, $baseDomain);
+$proxyService = new ProxyService($proxyPublicIp);
+$cycle = new Cycle(__DIR__, $proxyService, $proxyPrivateIp, $dockerHostIp, $baseDomain);
 
 $cycle->checkCommand($argv);
 

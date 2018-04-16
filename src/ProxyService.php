@@ -22,7 +22,7 @@ class ProxyService {
 		$this->proxyPublicIp = $proxyPublicIp;
 	}
 
-	function addVirtualHost($domain, $listenIp) {
+	function addVirtualHost($domain) {
 		$dir = "/var/www/virtual/$domain/htdocs";
 		echo "\tcreating vhost dir $dir\n";
 		passthru("mkdir -p $dir");
@@ -30,7 +30,7 @@ class ProxyService {
 
 
 		$vhostConfig = $this->getApacheConfigFileName($domain);
-		$tpl = $this->getTemplate($domain, $listenIp);
+		$tpl = $this->getTemplate($domain, $this->proxyPublicIp);
 		$this->log->log("creating vhostConfig $vhostConfig");
 		$this->log->log($tpl, 2);
 		file_put_contents($vhostConfig, $tpl);
@@ -74,7 +74,7 @@ class ProxyService {
 		}
 
 		//
-		$this->addVirtualHost($domain, $this->proxyPublicIp);
+		$this->addVirtualHost($domain);
 
 		//
 		$ret = 0;
@@ -107,6 +107,8 @@ $tpl = <<<TPL
 	ProxyPreserveHost On
 	ProxyPass "/"  "http://$host:$port/"
 	ProxyPassReverse "/"  "http://$host:$port/"
+	RequestHeader set X-Forwarded-Proto "https"
+	RequestHeader set X-Forwarded-Port "443"
 </VirtualHost>
 TPL;
 		$file = "/etc/apache2/sites-available/$domain.conf";

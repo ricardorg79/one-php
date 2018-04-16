@@ -2,8 +2,18 @@
 	"name": "registry",
 	"image": "registry:2",
 	"port.http": 5000,
+	"//ports": [
+		"5000:5000"
+	],
 	"internet": true,
+	"//env": {
+		"REGISTRY_HTTP_TLS_CERTIFICATE": "/srv/fullchain.pem",
+		"REGISTRY_HTTP_TLS_KEY": "/srv/privkey.pem"
+	},
 	"volumes": {
-		"/srv/registry": "/var/lib/registry"
+		"/srv/registry/data": "/var/lib/registry",
+		"/srv/registry/privkey.pem": "/srv/privkey.pem",
+		"/srv/registry/cert.pem": "/srv/cert.pem",
+		"/srv/registry/fullchain.pem": "/srv/fullchain.pem"
 	}
 }

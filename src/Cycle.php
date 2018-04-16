@@ -3,20 +3,17 @@ declare(strict_types=1);
 class Cycle {
 
 	private $baseDir;
-	
-	private $proxyPublicIp;
 	private $proxyPrivateIp;
 	private $dockerHostIp;
 
 	private $proxyService;
 
-	public function __construct($baseDir, $proxyPublicIp, $proxyPrivateIp, $dockerHostIp, $baseDomain) {
+	public function __construct($baseDir, $proxyService, $proxyPrivateIp, $dockerHostIp, $baseDomain) {
 		$this->baseDir = $baseDir;
-		$this->proxyPublicIp = $proxyPublicIp;
 		$this->proxyPrivateIp = $proxyPrivateIp;
 		$this->dockerHostIp = $dockerHostIp;
 		$this->baseDomain = $baseDomain;
-		$this->proxyService = new ProxyService($proxyPublicIp);
+		$this->proxyService = $proxyService;
 	}
 
 	function checkCommand($args) {
@@ -200,7 +197,7 @@ class Cycle {
 	}
 
 	private function createVirtualHost($domain) {
-		$this->proxyService->addVirtualHost($domain, $this->proxyPublicIp);
+		$this->proxyService->addVirtualHost($domain);
 	}
 
 	private function removeVirtualHost($domain) {
