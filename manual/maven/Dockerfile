@@ -8,8 +8,12 @@
 #WORKDIR /srv
 #CMD ["java", "-jar", "/opt/oauth-0.0.1-SNAPSHOT.jar"]
 
-FROM openjdk:8-jre-alpine
-ADD tiny-maven-proxy.properties /etc/tiny-maven-proxy.properties
-ADD https://timboudreau.com/builds/job/tiny-maven-proxy/lastSuccessfulBuild/artifact/tiny-maven-proxy/target/tiny-maven-proxy.jar /opt/tiny-maven-proxy.jar
+FROM ubuntu
+#ADD http://apache.mirrors.tds.net/archiva/2.2.3/binaries/apache-archiva-2.2.3-bin.tar.gz /opt/apache-archiva-2.2.3-bin.tar.gz
+ADD apache-archiva-2.2.3-bin.tar.gz /opt/apache-archiva-2.2.3
+
+RUN cd /opt  && ln -s apache-archiva-2.2.3 archiva
+	
+
 WORKDIR /srv
-CMD ["java", "-jar", "/opt/tiny-maven-proxy.jar"]
+CMD ["/opt/archiva/bin/archiva"]
